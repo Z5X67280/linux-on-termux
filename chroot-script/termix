@@ -1,0 +1,90 @@
+#!/data/data/com.termux/files/usr/bin/env bash
+
+show_help() {
+cat <<HELP
+temrix - a script to run linux on termux.
+
+Usage: termix [init|boot]
+
+See also:
+  QQGroup: 494453985
+  https://github.com/95e2/linux-on-termux
+HELP
+}
+
+case "$1" in
+"init")
+cat > boot.sh <<BOOT
+export ROOT=\$PWD; unset LD_PRELOAD;
+
+if [ ! -e \$ROOT/isMounted ]; then
+  mount --rbind /dev \$ROOT/dev;
+  mount --rbind /proc \$ROOT/proc;
+  mount --rbind /sys \$ROOT/sys;
+  mount tmpfs -t tmpfs -o size="50%" \$ROOT/tmp;
+  touch \$ROOT/isMounted;
+
+  chmod 755 init.sh;
+  if [ -e /data/data/com.termux ]; then
+    if [ ! -e \$ROOT/sdcard ]; then
+      mkdir \$ROOT/sdcard;
+      chmod 755 \$ROOT/sdcard;
+    fi;
+    mount --bind /sdcard \$ROOT/sdcard;
+  fi;
+
+  # Fix DNS
+  if [ ! -e etc/resolv.conf.ok ]; then
+    rm -rf \$ROOT/resolv.conf;
+    echo "nameserver 8.8.8.8" > \\
+             \$ROOT/etc/resolv.conf;
+    echo "DNS IS OK" > \$ROOT/etc/resolv.conf.ok;
+  fi;
+  chroot \$ROOT /init.sh; ret=\$?;
+
+  # Clean up
+  rm -rf \$ROOT/tmp/*; umount \$ROOT/tmp
+  cat /proc/mounts | grep \$ROOT | \\
+    awk '{ print \$2 }'| sort -u -r | xargs umount;
+  rm \$ROOT/isMounted;
+else
+  chroot \$ROOT /init.sh; ret=\$?;
+fi; exit \$ret;
+BOOT
+cat > init.sh <<INIT
+#!/bin/sh
+
+unset PREFIX TMPDIR HOME SHELL;
+unset LD_LIBRARY_PATH HISTFILE;
+unset ANDROID_ROOT ANDROID_DATA;
+unset EXTERNAL_STORAGE LD_PRELOAD;
+
+export TERM="xterm";
+export HOME="/root";
+export PATH="/bin:/sbin:/usr/bin:/usr/sbin";
+export PATH="\$PATH:/usr/local/bin:/opt/bin";
+
+# Preload profile
+. /etc/profile;
+
+# Show logo, even though it was crashed.
+echo " _____                   _      ";
+echo "|_   _|__ _ __ _ __ ___ (_)_  __";
+echo "  | |/ _ \\\ '__| '_ \\\` _ \\\| \\\ \\\/ /";
+echo "  | |  __/ |  | | | | | | |>  < ";
+echo "  |_|\\\___|_|  |_| |_| |_|_/_/\\\_\\\ v1.0.0";
+echo "                                ";
+echo " A chroot scripts to run linux on termux.";
+
+su - root; exit \$?;
+INIT
+  ;;
+"boot")
+  sh boot.sh;
+  ;;
+*)
+  show_help;
+  exit 0;
+  ;;
+esac
+
