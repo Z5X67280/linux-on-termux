@@ -1,6 +1,6 @@
 temrix - a script to run linux on termux.
 
-Usage: termix [init|boot]
+Usage: termix <init|boot> <bootdir>
 
 See also:
   QQGroup: 494453985

@@ -1,10 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/env bash
 
+BOOT_DIR="$PWD/$2";
+TERMIX_DIR="$HOME/.termix";
+
 show_help() {
 cat <<HELP
 temrix - a script to run linux on termux.
 
-Usage: termix [init|boot]
+Usage: ${0##*/} <init|boot> <bootdir>
 
 See also:
   QQGroup: 494453985
@@ -12,10 +15,27 @@ See also:
 HELP
 }
 
+if [ $# -lt 2 ]; then
+  show_help;
+  exit 0;
+fi
+if [ ! -e $TERMIX_DIR ]; then
+  mkdir -p $TERMIX_DIR;
+fi;
+if [ ! -e $BOOT_DIR ]; then
+  echo "Not found path [$BOOT_DIR]!";
+  exit 1;
+fi;
+
 case "$1" in
 "init")
-cat > boot.sh <<BOOT
-export ROOT=\$PWD; unset LD_PRELOAD;
+cat > $TERMIX_DIR/boot.sh <<BOOT
+export ROOT="\$1"; unset LD_PRELOAD;
+
+if [ ! -e \$ROOT ]; then
+  echo "Not found [\$ROOT"];
+  exit 1;
+fi;
 
 if [ ! -e \$ROOT/isMounted ]; then
   mount --rbind /dev \$ROOT/dev;
@@ -24,7 +44,7 @@ if [ ! -e \$ROOT/isMounted ]; then
   mount tmpfs -t tmpfs -o size="50%" \$ROOT/tmp;
   touch \$ROOT/isMounted;
 
-  chmod 755 init.sh;
+  chmod 755 \$ROOT/init.sh;
   if [ -e /data/data/com.termux ]; then
     if [ ! -e \$ROOT/sdcard ]; then
       mkdir \$ROOT/sdcard;
@@ -43,7 +63,7 @@ if [ ! -e \$ROOT/isMounted ]; then
   chroot \$ROOT /init.sh; ret=\$?;
 
   # Clean up
-  rm -rf \$ROOT/tmp/*; umount \$ROOT/tmp
+  rm -rf \$ROOT/tmp/*; fuser -k \$ROOT;
   cat /proc/mounts | grep \$ROOT | \\
     awk '{ print \$2 }'| sort -u -r | xargs umount;
   rm \$ROOT/isMounted;
@@ -51,7 +71,7 @@ else
   chroot \$ROOT /init.sh; ret=\$?;
 fi; exit \$ret;
 BOOT
-cat > init.sh <<INIT
+cat > $BOOT_DIR/init.sh <<INIT
 #!/bin/sh
 
 unset PREFIX TMPDIR HOME SHELL;
@@ -80,7 +100,7 @@ su - root; exit \$?;
 INIT
   ;;
 "boot")
-  sh boot.sh;
+  sh $TERMIX_DIR/boot.sh $BOOT_DIR;
   ;;
 *)
   show_help;
