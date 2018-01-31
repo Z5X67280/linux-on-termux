@@ -15,6 +15,11 @@ See also:
 HELP
 }
 
+if [ $(id -u) != 0 ]; then
+  echo "This termix can only run as root!";
+  exit 2;
+fi;
+
 if [ $# -lt 2 ]; then
   show_help;
   exit 0;
