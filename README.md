@@ -17,10 +17,13 @@
 > $ mkdir newroot  
 > $ cd newroot  
 > $ wget -O - http://dl-cdn.alpinelinux.org/alpine/v3.7/releases/aarch64/alpine-minirootfs-3.7.0-aarch64.tar.gz | tee alpine.tgz | tar xzvf -  
-> $ termix init # 初始化  
-> $ termix boot # 启动  
+> $ cd .. # 不能在root目录下启动  
+> $ termix init newroot # 初始化  
+> $ termix boot newroot # 启动  
 
 #### 注： ####
+
+0. 因为作者比较懒，具体用法还是看命令提示
 
 1. chroot-script需要在tsu模式下使用
 
