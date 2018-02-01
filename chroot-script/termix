@@ -68,10 +68,10 @@ if [ ! -e \$ROOT/isMounted ]; then
   chroot \$ROOT /init.sh; ret=\$?;
 
   # Clean up
+  rm \$ROOT/isMounted;
   rm -rf \$ROOT/tmp/*; fuser -k \$ROOT;
   cat /proc/mounts | grep \$ROOT | \\
     awk '{ print \$2 }'| sort -u -r | xargs umount;
-  rm \$ROOT/isMounted;
 else
   chroot \$ROOT /init.sh; ret=\$?;
 fi; exit \$ret;
