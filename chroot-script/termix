@@ -1,7 +1,9 @@
 #!/data/data/com.termux/files/usr/bin/env bash
 
-BOOT_DIR="$PWD/$2";
-TERMIX_DIR="$HOME/.termix";
+#export PATH="/system/xbin"
+#export HOME="/sdcard/"
+export BOOT_DIR="$PWD/$2";
+export TERMIX_DIR="$HOME/.termix";
 
 show_help() {
 cat <<HELP
@@ -14,16 +16,14 @@ See also:
   https://github.com/95e2/linux-on-termux
 HELP
 }
-
 if [ $(id -u) != 0 ]; then
   echo "This termix can only run as root!";
   exit 2;
 fi;
-
 if [ $# -lt 2 ]; then
   show_help;
   exit 0;
-fi
+fi;
 if [ ! -e $TERMIX_DIR ]; then
   mkdir -p $TERMIX_DIR;
 fi;
@@ -68,10 +68,11 @@ if [ ! -e \$ROOT/isMounted ]; then
   chroot \$ROOT /init.sh; ret=\$?;
 
   # Clean up
-  rm \$ROOT/isMounted;
   rm -rf \$ROOT/tmp/*; fuser -k \$ROOT;
   cat /proc/mounts | grep \$ROOT | \\
-    awk '{ print \$2 }'| sort -u -r | xargs umount;
+    grep -v "^\$ROOT$" | awk '{ print \$2 }' | \\
+                         sort -u -r | xargs umount;
+  rm \$ROOT/isMounted;
 else
   chroot \$ROOT /init.sh; ret=\$?;
 fi; exit \$ret;
