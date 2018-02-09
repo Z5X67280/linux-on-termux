@@ -35,7 +35,7 @@ h64.tar.gz | tee alpine.tgz | tar xzvf -
 
 0. 因为作者比较懒，具体用法还是看命令提示
 
-1. chroot-script需要在tsu模式下使用
+1. 请务必将busybox安装到/system/xbin目录，建议使用busybox安装器
 
 2. 下次进入系统只需要在root目录下执行termix boot即可
 
