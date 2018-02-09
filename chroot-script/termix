@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/env bash
 
-#export PATH="/system/xbin"
+export PATH="/system/xbin"
 #export HOME="/sdcard/"
 export BOOT_DIR="$PWD/$2";
 export TERMIX_DIR="$HOME/.termix";
@@ -35,6 +35,7 @@ fi;
 case "$1" in
 "init")
 cat > $TERMIX_DIR/boot.sh <<BOOT
+export PATH="/system/xbin"
 export ROOT="\$1"; unset LD_PRELOAD;
 
 if [ ! -e \$ROOT ]; then

@@ -14,12 +14,22 @@
 
 #### 例： ####
 
+chroot版本:  
+> $ tsu # 切换到root  
+> \# mkdir newroot  
+> \# cd newroot  
+> \# wget -O - http://dl-cdn.alpinelinux.org/alpine/v3.7/releases/aarch64/alpine-minirootfs-3.7.0-aarch64.tar.gz | tee alpine.tgz | tar xzvf -  
+> \# cd .. # 不能在root目录下启动  
+> \# termix init newroot # 初始化  
+> \# termix boot newroot # 启动  
+
+proot版本:  
 > $ mkdir newroot  
-> $ cd newroot  
-> $ wget -O - http://dl-cdn.alpinelinux.org/alpine/v3.7/releases/aarch64/alpine-minirootfs-3.7.0-aarch64.tar.gz | tee alpine.tgz | tar xzvf -  
-> $ cd .. # 不能在root目录下启动  
-> $ termix init newroot # 初始化  
-> $ termix boot newroot # 启动  
+> $ wget -O - http://dl-cdn.alpinelinux.org/alpine
+/v3.7/releases/aarch64/alpine-minirootfs-3.7.0-aarc
+h64.tar.gz | tee alpine.tgz | tar xzvf -  
+> $ cp proot-scripts/\*.sh .  
+> $ sh boot.sh  
 
 #### 注： ####
 
