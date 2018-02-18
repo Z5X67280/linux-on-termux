@@ -44,7 +44,7 @@ export PATH="/system/xbin"
 export ROOT="\$1"; unset LD_PRELOAD;
 
 if [ ! -e \$ROOT ]; then
-  echo "Not found [\$ROOT"];
+  echo "Not found [\$ROOT]";
   exit 1;
 fi;
 
