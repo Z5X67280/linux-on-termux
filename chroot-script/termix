@@ -18,7 +18,7 @@ HELP
 }
 if [ $(id -u) != 0 ]; then
   echo "This termix can only be run as root!";
-  exit 2;
+  exit 1;
 fi;
 if [ $# -lt 2 ]; then
   show_help;
@@ -29,8 +29,13 @@ if [ ! -e $TERMIX_DIR ]; then
 fi;
 if [ ! -e $BOOT_DIR ]; then
   echo "Not found path [$BOOT_DIR]!";
-  exit 1;
+  exit 2;
 fi;
+
+if [ "$(cd $BOOT_DIR; pwd)" = "$(pwd)" ]; then
+  echo "\$BOOT_DIR can not be \$PWD!";
+  exit 3;
+fi
 
 case "$1" in
 "init")
