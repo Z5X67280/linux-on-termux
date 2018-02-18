@@ -76,7 +76,7 @@ if [ ! -e \$ROOT/isMounted ]; then
   # Clean up
   rm -rf \$ROOT/tmp/*; fuser -k \$ROOT;
   cat /proc/mounts | awk '{ print \$2 }' | \\
-    grep "^\$ROOT"| grep -v "^\$ROOT$" | \\
+        grep "^\$ROOT"| grep -v "^\$ROOT$" | \\
                          sort -u -r | xargs umount;
   rm \$ROOT/isMounted;
 else
