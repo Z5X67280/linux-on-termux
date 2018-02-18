@@ -17,7 +17,7 @@ See also:
 HELP
 }
 if [ $(id -u) != 0 ]; then
-  echo "This termix can only run as root!";
+  echo "This termix can only be run as root!";
   exit 2;
 fi;
 if [ $# -lt 2 ]; then
@@ -70,8 +70,8 @@ if [ ! -e \$ROOT/isMounted ]; then
 
   # Clean up
   rm -rf \$ROOT/tmp/*; fuser -k \$ROOT;
-  cat /proc/mounts | grep \$ROOT | \\
-    awk '{ print \$2 }' | grep -v "^\$ROOT$" | \\
+  cat /proc/mounts | awk '{ print \$2 }' | \\
+    grep "^\$ROOT"| grep -v "^\$ROOT$" | \\
                          sort -u -r | xargs umount;
   rm \$ROOT/isMounted;
 else
