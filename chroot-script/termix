@@ -1,11 +1,23 @@
 #!/data/data/com.termux/files/usr/bin/env bash
 
-export PATH="/system/xbin"
+export PATH="/system/xbin:/system/bin"
 #export HOME="/sdcard/"
 export BOOT_DIR="$PWD/$2";
 export TERMIX_DIR="$HOME/.termix";
 
-show_help() {
+NO_ERROR=0
+ENV_ERROR=1
+PERM_ERR=2
+BOOT_ERR=3
+
+busybox > /dev/null 2>&1 || {
+  echo "Not found busybox!"
+  echo "Check you path and try again!"
+  exit $ENV_ERROR;
+}
+
+function show_help()
+{
 cat <<HELP
 temrix - a script to run linux on termux.
 
@@ -16,73 +28,30 @@ See also:
   https://github.com/95e2/linux-on-termux
 HELP
 }
+
 if [ $(id -u) != 0 ]; then
   echo "This termix can only be run as root!";
-  exit 1;
+  exit $PERM_ERR;
 fi;
 if [ $# -lt 2 ]; then
   show_help;
-  exit 0;
+  exit $NO_ERROR;
 fi;
 if [ ! -e $TERMIX_DIR ]; then
   mkdir -p $TERMIX_DIR;
 fi;
 if [ ! -e $BOOT_DIR ]; then
   echo "Not found path [$BOOT_DIR]!";
-  exit 2;
+  exit $BOOT_ERR;
 fi;
 
 if [ "$(cd $BOOT_DIR; pwd)" = "$(pwd)" ]; then
   echo "\$BOOT_DIR can not be \$PWD!";
-  exit 3;
+  exit $BOOT_ERR;
 fi
 
-case "$1" in
-"init")
-cat > $TERMIX_DIR/boot.sh <<BOOT
-export PATH="/system/xbin"
-export ROOT="\$1"; unset LD_PRELOAD;
-
-if [ ! -e \$ROOT ]; then
-  echo "Not found [\$ROOT]";
-  exit 1;
-fi;
-
-if [ ! -e \$ROOT/isMounted ]; then
-  mount --rbind /dev \$ROOT/dev;
-  mount --rbind /proc \$ROOT/proc;
-  mount --rbind /sys \$ROOT/sys;
-  mount tmpfs -t tmpfs -o size="50%" \$ROOT/tmp;
-  touch \$ROOT/isMounted;
-
-  chmod 755 \$ROOT/init.sh;
-  if [ -e /data/data/com.termux ]; then
-    if [ ! -e \$ROOT/sdcard ]; then
-      mkdir \$ROOT/sdcard;
-      chmod 755 \$ROOT/sdcard;
-    fi;
-    mount --bind /sdcard \$ROOT/sdcard;
-  fi;
-
-  # Fix DNS
-  if [ ! -e etc/resolv.conf.ok ]; then
-    rm -rf \$ROOT/resolv.conf;
-    echo "nameserver 8.8.8.8" > \\
-             \$ROOT/etc/resolv.conf;
-    echo "DNS IS OK" > \$ROOT/etc/resolv.conf.ok;
-  fi;
-  chroot \$ROOT /init.sh; ret=\$?;
-
-  # Clean up
-  rm -rf \$ROOT/tmp/*; fuser -k \$ROOT;
-  cat /proc/mounts | awk '{ print \$2 }' | \\
-        grep "^\$ROOT"| grep -v "^\$ROOT$" | \\
-                         sort -u -r | xargs umount;
-  rm \$ROOT/isMounted;
-else
-  chroot \$ROOT /init.sh; ret=\$?;
-fi; exit \$ret;
-BOOT
+function termix_init()
+{
 cat > $BOOT_DIR/init.sh <<INIT
 #!/bin/sh
 
@@ -110,13 +79,68 @@ echo " A chroot scripts to run linux on termux.";
 
 su - root; exit \$?;
 INIT
-  ;;
-"boot")
-  sh $TERMIX_DIR/boot.sh $BOOT_DIR;
-  ;;
-*)
-  show_help;
-  exit 0;
-  ;;
-esac
+}
 
+function termix_boot()
+{
+  export PATH="/system/xbin"
+  export ROOT="$1"; unset LD_PRELOAD;
+  
+  if [ ! -e $ROOT ]; then
+    echo "Not found [$ROOT]";
+    exit $BOOT_ERR;
+  fi;
+  
+  if [ ! -e $ROOT/isMounted ]; then
+    mount --rbind /dev $ROOT/dev;
+    mount --rbind /proc $ROOT/proc;
+    mount --rbind /sys $ROOT/sys;
+    mount tmpfs -t tmpfs -o size="50%" $ROOT/tmp;
+    touch $ROOT/isMounted;
+  
+    chmod 755 $ROOT/init.sh;
+    if [ -e /data/data/com.termux ]; then
+      if [ ! -e $ROOT/sdcard ]; then
+        mkdir $ROOT/sdcard;
+        chmod 755 $ROOT/sdcard;
+      fi;
+      mount --bind /sdcard $ROOT/sdcard;
+    fi;
+  
+    # Fix DNS
+    if [ ! -e etc/resolv.conf.ok ]; then
+      rm -rf $ROOT/resolv.conf;
+      echo "nameserver 8.8.8.8" > \
+               $ROOT/etc/resolv.conf;
+      echo "DNS IS OK" > $ROOT/etc/resolv.conf.ok;
+    fi;
+    chroot $ROOT /init.sh; ret=$?;
+  
+    # Clean up
+    rm -rf $ROOT/tmp/*; fuser -k $ROOT;
+    cat /proc/mounts | awk '{ print $2 }' | \
+          grep "^$ROOT"| grep -v "^$ROOT$" | \
+                           sort -u -r | xargs umount;
+    rm $ROOT/isMounted;
+  else
+    chroot $ROOT /init.sh; ret=$?;
+  fi; exit $ret;
+}
+
+function main()
+{
+  case "$1" in
+  "init")
+    termix_init $BOOT_DIR;
+    ;;
+  "boot")
+    termix_boot $BOOT_DIR;
+    ;;
+  *)
+    show_help;
+    exit $NO_ERROR;
+    ;;
+  esac
+}
+
+main "$@"
