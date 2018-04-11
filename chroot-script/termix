@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
-export PATH="/system/xbin:/system/bin"
-#export HOME="/sdcard/"
-export BOOT_DIR="$PWD/$2" # Ensure abspath!
+export PATH="/system/xbin:/system/bin";
+#export HOME="/sdcard/";
+export BOOT_DIR="$PWD/$2"; # Ensure abspath!
 
-NO_ERROR=0
-ENV_ERROR=1
-PERM_ERR=2
-BOOT_ERR=3
+NO_ERROR=0;
+ENV_ERROR=1;
+PERM_ERR=2;
+BOOT_ERR=3;
 
 type busybox > /dev/null 2>&1 || {
   echo "Not found busybox!";
   echo "Check you path and try again!";
   exit $ENV_ERROR;
-}
+};
 
 show_help()
 {
@@ -34,7 +34,7 @@ check_env()
     echo "This termix can only be run as root!";
     exit $PERM_ERR;
   fi;
-  if [ ! -e $BOOT_DIR ] || [ x$BOOT_DIR = "" ]; then
+  if [ ! -e $BOOT_DIR ] || [ x$BOOT_DIR = "x" ]; then
     echo "Not found path [$BOOT_DIR]!";
     exit $ENV_ERROR;
   fi;
@@ -71,20 +71,20 @@ echo "  |_|\\\___|_|  |_| |_| |_|_/_/\\\_\\\ v1.0.0";
 echo "                                ";
 echo " A chroot scripts to run linux on termux.";
 
-su - root; exit \$?;
+sh -l; exit \$?
+#su - root; exit \$?;
 INIT
 }
 
 termix_boot()
 {
   unset LD_PRELOAD;
-  export PATH="/system/xbin"
-  chmod -f 755 $BOOT_DIR/init.sh;
+  export PATH="/system/xbin";
   if [ ! -e $BOOT_DIR/init.sh ]; then
     echo "Not found [$BOOT_DIR/init.sh]";
-    echo "Have you run termix init?"
+    echo "Have you run termix init?";
     exit $BOOT_ERR;
-  fi;
+  fi; chmod -f 755 $BOOT_DIR/init.sh;
   
   if [ ! -e $BOOT_DIR/isMounted ]; then
     mount --rbind /dev $BOOT_DIR/dev;
@@ -93,7 +93,6 @@ termix_boot()
     mount tmpfs -t tmpfs -o size="50%" $BOOT_DIR/tmp;
     touch $BOOT_DIR/isMounted;
   
-    chmod 755 $BOOT_DIR/init.sh;
     if [ -e /data/data/com.termux ]; then
       if [ ! -e $BOOT_DIR/sdcard ]; then
         mkdir $BOOT_DIR/sdcard;
@@ -144,4 +143,4 @@ main()
   esac
 }
 
-main "$@"
+main "$@";
