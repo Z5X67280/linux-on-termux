@@ -29,26 +29,25 @@ See also:
 HELP
 }
 
-if [ $(id -u) != 0 ]; then
-  echo "This termix can only be run as root!";
-  exit $PERM_ERR;
-fi;
-if [ $# -lt 2 ]; then
-  show_help;
-  exit $NO_ERROR;
-fi;
-if [ ! -e $TERMIX_DIR ]; then
-  mkdir -p $TERMIX_DIR;
-fi;
-if [ ! -e $BOOT_DIR ]; then
-  echo "Not found path [$BOOT_DIR]!";
-  exit $BOOT_ERR;
-fi;
+function check_env()
+{
+  if [ $(id -u) != 0 ]; then
+    echo "This termix can only be run as root!";
+    exit $PERM_ERR;
+  fi;
+  if [ ! -e $TERMIX_DIR ]; then
+    mkdir -p $TERMIX_DIR;
+  fi;
+  if [ ! -e $BOOT_DIR ]; then
+    echo "Not found path [$BOOT_DIR]!";
+    exit $BOOT_ERR;
+  fi;
 
-if [ "$(cd $BOOT_DIR; pwd)" = "$(pwd)" ]; then
-  echo "\$BOOT_DIR can not be \$PWD!";
-  exit $BOOT_ERR;
-fi
+  if [ "$(cd $BOOT_DIR; pwd)" = "$(pwd)" ]; then
+    echo "\$BOOT_DIR can not be \$PWD!";
+    exit $BOOT_ERR;
+  fi
+}
 
 function termix_init()
 {
@@ -129,6 +128,12 @@ function termix_boot()
 
 function main()
 {
+  if [ $# -lt 2 ]; then
+    show_help;
+    exit $NO_ERROR;
+  fi;
+
+  check_env
   case "$1" in
   "init")
     termix_init $BOOT_DIR;
