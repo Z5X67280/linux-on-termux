@@ -87,6 +87,7 @@ termix_boot()
   fi; chmod -f 755 $BOOT_DIR/init.sh;
   
   if [ ! -e $BOOT_DIR/isMounted ]; then
+    mount -o remount,suid /data;
     mount --rbind /dev $BOOT_DIR/dev;
     mount --rbind /proc $BOOT_DIR/proc;
     mount --rbind /sys $BOOT_DIR/sys;
@@ -116,6 +117,7 @@ termix_boot()
           grep "^$BOOT_DIR"| grep -v "^$BOOT_DIR\$" | \
                            sort -u -r | xargs umount;
     rm $BOOT_DIR/isMounted;
+    mount -o remount,nosuid /data;
   else
     chroot $BOOT_DIR /init.sh; ret=$?;
   fi; exit $ret;
