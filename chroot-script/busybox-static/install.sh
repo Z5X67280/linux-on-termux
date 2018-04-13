@@ -2,9 +2,10 @@
 
 export PATH="/system/bin:/system/xbin";
 
-uid=`id | cut -d' ' -f1 | cut -d'=' -f2`;
+uid=`id`; uid=${uid%% *}; uid=${uid#*=};
 [ $uid != "0(root)" ] && {
   echo "Please run this script as root!";
+  echo "Current run as uid=${uid}."
   exit 1;
 };
 
