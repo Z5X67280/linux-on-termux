@@ -29,7 +29,7 @@ patchUser() {
     [ x$user = "x" ] && return;
     groupList | while read group; do
         group=$(echo $group | cut -d':' -f1)
-        gpasswd -a "$user" $group
+        gpasswd -a "$user" $group || return;
     done
 }
 

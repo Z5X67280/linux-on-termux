@@ -1,7 +1,39 @@
-temrix - a script to run linux on termux.
+Termix - A wrapper of chroot/proot to run linux on termux.
 
 Usage: termix <init|boot> <bootdir>
 
 See also:
   QQGroup: 494453985
+  https://busybox.net
+  https://github.com/proot-me/proot
   https://github.com/95e2/linux-on-termux
+
+
+********* FOR EXAMPLE
+
+1. sh install.sh
+
+2. mkdir alpine && cd alpine
+
+3. wget -O - http://mirrors.ustc.edu.cn/alpine/v3.7/releases/armhf/alpine-minirootfs-3.7.0-armhf.tar.gz | tar xzvpf -
+
+4. cd ../ && termix init alpine
+
+5. termix boot alpine
+
+******** END OF FOR EXAMPLE OF TERMIX
+
+
+********* USEFUL GUIDE OF CHROOT VERSION
+
+There are some useful tools in the chroot-script,
+You can use it to fix some issues in the linux.
+
+For example:
+  * chroot-script/patch/group-patch.sh
+    It can slove normal user can not access /sdcard or can not connect to internet.
+
+  * chroot-script/busybox-static
+    It can install a busybox on your devices that if you don't have any busybox installed.
+
+********* END OF USEFUL GUIDE OF CHROOT VERSION
