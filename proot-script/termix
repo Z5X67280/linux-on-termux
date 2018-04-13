@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+
+export BOOT_DIR="$PWD/$2";
+
+NO_ERROR=0;
+ENV_ERROR=1;
+#PERM_ERR=2;
+BOOT_ERR=3;
+
+show_help()
+{
+cat <<HELP
+temrix - a script to run linux on termux.
+
+Usage: ${0##*/} <init|boot> <bootdir>
+
+See also:
+  QQGroup: 494453985
+  https://github.com/95e2/linux-on-termux
+HELP
+}
+
+type proot > /dev/null 2>&1 || {
+  echo "Not found proot!";
+  echo "Please install proot and try again!";
+  exit $ENV_ERROR;
+};
+
+check_env()
+{
+  if [ ! -e $BOOT_DIR ] || [ x$BOOT_DIR = "x" ]; then
+    echo "Not found path [$BOOT_DIR]!";
+    exit $ENV_ERROR;
+  fi
+  [ "$BOOT_DIR" = "/" ] && exit $ENV_ERROR;
+}
+
+termix_init()
+{
+cat > init.sh <<INIT
+#!/bin/sh
+
+unset PREFIX TMPDIR HOME SHELL;
+unset LD_LIBRARY_PATH HISTFILE;
+unset ANDROID_ROOT ANDROID_DATA;
+unset EXTERNAL_STORAGE PROOT_TMP_DIR;
+
+export TERM="xterm";
+export HOME="/root";
+export PATH="/bin:/sbin:/usr/bin:/usr/sbin";
+export PATH="\$PATH:/usr/local/bin:/opt/bin";
+
+# Preload profile
+. /etc/profile;
+
+# Show logo, even though it was crashed.
+echo " _____                   _      ";
+echo "|_   _|__ _ __ _ __ ___ (_)_  __";
+echo "  | |/ _ \\\ '__| '_ \\\` _ \\\| \\\ \\\/ /";
+echo "  | |  __/ |  | | | | | | |>  < ";
+echo "  |_|\\\___|_|  |_| |_| |_|_/_/\\\_\\\ v1.2.3";
+echo "                                ";
+echo " A proot scripts to run linux on termux.";
+
+# TODO: This is not available on most systems
+#         unless the su symlink to busybox.
+#su - root; exit \$?;
+
+type bash > /dev/null 2>&1;
+if [ \$? = 0 ]; then
+  export SHELL="\$(type -p bash)";
+  bash -l; exit \$?;
+else
+  export SHELL="\$(type -p sh)";
+  sh -l; exit \$?;
+fi;
+
+# FIXME: type -p is not support on dash
+INIT
+}
+
+termix_boot()
+{
+  PROOT_ARGS="-0 -w /root -b /dev -b /sys -b /proc";
+  unset LD_PRELOAD;
+  chmod -f 755 $BOOT_DIR/init.sh;
+  if [ -e /data/data/com.termux ]; then
+    if [ ! -e sdcard ]; then
+      mkdir sdcard;
+      chmod 755 sdcard;
+    fi;
+    PROOT_ARGS="$PROOT_ARGS -b /sdcard \
+            --kill-on-exit --link2symlink";
+  else
+    PROOT_ARGS="$PROOT_ARGS -b /tmp";
+  fi;
+  if [ x$PROOT_TMP_DIR = "x" ]; then
+    export PROOT_TMP_DIR="$HOME/.proot";
+    if [ ! -e $PROOT_TMP_DIR ]; then
+      mkdir -p $PROOT_TMP_DIR;
+    fi;
+  fi;
+  if [ ! -e $BOOT_DIR/etc/resolv.conf.ok ]; then
+    echo "nameserver 8.8.8.8" > $BOOT_DIR/etc/resolv.conf;
+    echo "DNS IS OK" > $BOOT_DIR/etc/resolv.conf.ok;
+  fi;
+  [ ! -e $BOOT_DIR/init.sh ] && {
+    echo "Not found [$BOOT_DIR/init.sh]";
+    echo "Have you run termix init?";
+    exit $BOOT_ERR;
+  };
+  proot -r $BOOT_DIR $PROOT_ARGS /init.sh;
+  [ -d $BOOT_DIR/tmp ] && rm -rf $BOOT_DIR/tmp/*;
+}
+
+main()
+{
+  if [ $# -lt 2 ]; then
+    show_help;
+    exit $NO_ERROR;
+  fi
+
+  check_env;
+  case "$1" in
+    "init")
+    termix_init;
+    ;;
+  "boot")
+    termix_boot;
+    ;;
+  *)
+    show_help;
+    exit 0;
+    ;;
+  esac
+}
+
+main "$@";
+
