@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export BOOT_DIR=$(realpath $2);
+export BOOT_DIR=$(realpath $2 2>/dev/null);
 
 NO_ERROR=0;
 ENV_ERROR=1;
