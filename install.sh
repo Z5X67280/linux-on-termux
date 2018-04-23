@@ -4,7 +4,7 @@
 
 DEST_DIR="$PREFIX/bin"
 CHROOT_TOOLS_DIR="chroot-script"
-PROOT_TOOLS_DIR="proot-scripts"
+PROOT_TOOLS_DIR="proot-script"
 
 echo "Type which type your want to install."
 echo "[cC] for chroot [pP] for proot. [c/p]"
@@ -33,7 +33,7 @@ For example:
   * $CHROOT_TOOLS_DIR/patch/group-patch.sh
     It can slove normal user can not access /sdcard or can not connect to internet.
 
-  * $CHROOT_TOOLS_DIR/busybox-static
+  * $CHROOT_TOOLS_DIR/busybox-static/install.sh
     It can install a busybox on your devices that if you don't have any busybox installed.
 
 ********* END OF USEFUL GUIDE OF CHROOT VERSION

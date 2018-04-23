@@ -21,7 +21,7 @@ See also:
 
 5. termix boot alpine
 
-******** END OF FOR EXAMPLE OF TERMIX
+*** END OF FOR EXAMPLE OF TERMIX
 
 
 ********* USEFUL GUIDE OF CHROOT VERSION
@@ -33,7 +33,7 @@ For example:
   * chroot-script/patch/group-patch.sh
     It can slove normal user can not access /sdcard or can not connect to internet.
 
-  * chroot-script/busybox-static
+  * chroot-script/busybox-static/install.sh
     It can install a busybox on your devices that if you don't have any busybox installed.
 
-********* END OF USEFUL GUIDE OF CHROOT VERSION
+*** END OF USEFUL GUIDE OF CHROOT VERSION

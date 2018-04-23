@@ -25,6 +25,7 @@ patchGroup() {
 }
 
 patchUser() {
+    local group
     local user="$1"
     [ x$user = "x" ] && return;
     groupList | while read group; do

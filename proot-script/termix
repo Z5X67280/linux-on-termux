@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export BOOT_DIR="$PWD/$2";
+export BOOT_DIR=$(realpath $2);
 
 NO_ERROR=0;
 ENV_ERROR=1;
@@ -37,7 +37,7 @@ check_env()
 
 termix_init()
 {
-cat > init.sh <<INIT
+cat > $BOOT_DIR/init.sh <<INIT
 #!/bin/sh
 
 unset PREFIX TMPDIR HOME SHELL;
