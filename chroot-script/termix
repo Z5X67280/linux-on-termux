@@ -9,6 +9,9 @@ ENV_ERROR=1;
 PERM_ERR=2;
 BOOT_ERR=3;
 
+SDCARD_PATH=/storage/sdcard0
+EXT_SD_PATH=/storage/sdcard1
+
 type busybox > /dev/null 2>&1 || {
   echo "Not found busybox!";
   echo "Check you path and try again!";
@@ -95,11 +98,20 @@ termix_boot()
     touch $BOOT_DIR/isMounted;
   
     if [ -e /data/data/com.termux ]; then
-      if [ ! -e $BOOT_DIR/sdcard ]; then
+      # sdcard
+      if [ ! -e $SDCARD_PATH ]; then
         mkdir $BOOT_DIR/sdcard;
         chmod 755 $BOOT_DIR/sdcard;
       fi;
-      mount --bind /sdcard $BOOT_DIR/sdcard;
+      mount --bind $SDCARD_PATH $BOOT_DIR/sdcard;
+      # ext_sd
+      if [ -e $EXT_SD_PATH ]; then
+        if [ ! -e $BOOT_DIR/ext_sd ]; then
+          mkdir $BOOT_DIR/ext_sd;
+          chmod 755 $BOOT_DIR/ext_sd;
+        fi;
+        mount --bind $EXT_SD_PATH $BOOT_DIR/ext_sd;
+      fi;
     fi;
   
     # Fix DNS
