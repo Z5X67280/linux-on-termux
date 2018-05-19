@@ -99,9 +99,11 @@ termix_boot()
   
     if [ -e /data/data/com.termux ]; then
       # sdcard
-      if [ ! -e $SDCARD_PATH ]; then
-        mkdir $BOOT_DIR/sdcard;
-        chmod 755 $BOOT_DIR/sdcard;
+      if [ -e $SDCARD_PATH ]; then
+	if [ ! -e $BOOT_DIR/sdcard ]; then
+          mkdir $BOOT_DIR/sdcard;
+          chmod 755 $BOOT_DIR/sdcard;
+	fi;
       fi;
       mount --bind $SDCARD_PATH $BOOT_DIR/sdcard;
       # ext_sd
